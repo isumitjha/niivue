@@ -269,6 +269,29 @@ export class UIKSlider {
   }
 
   /**
+   * Draw a circular thumb (perfect round design)
+   */
+  private drawCircularThumb(centerX: number, centerY: number, radius: number, 
+                           thumbColor: Color, borderColor: Color): void {
+    // Draw main circular thumb (perfect circle with equal width and height)
+    const diameter = radius * 2
+    this.renderer.drawCircle({
+      leftTopWidthHeight: [centerX - radius, centerY - radius, diameter, diameter],
+      circleColor: thumbColor,
+      fillPercent: 1.0
+    })
+    
+    // Draw border circle (slightly larger)
+    const borderRadius = radius + 1
+    const borderDiameter = borderRadius * 2
+    this.renderer.drawCircle({
+      leftTopWidthHeight: [centerX - borderRadius, centerY - borderRadius, borderDiameter, borderDiameter],
+      circleColor: borderColor,
+      fillPercent: 0.2 // Just the border
+    })
+  }
+
+  /**
    * Render the slider component
    */
   public render(): void {
@@ -307,25 +330,27 @@ export class UIKSlider {
   }
 
   /**
-   * Render horizontal slider
+   * Render horizontal slider with circular thumbs
    */
   private renderHorizontalSlider(x: number, y: number, width: number, height: number,
                                 normalizedValue: number, trackColor: Color, fillColor: Color,
                                 thumbColor: Color, textColor: Color): void {
     const style = this.config.style!
     const trackThickness = style.trackThickness!
-    const thumbSize = style.thumbSize!
+    const thumbRadius = style.thumbSize! * 0.5
     
     // Calculate positions
-    const trackY = y + (height - trackThickness) / 2
-    const trackWidth = width - thumbSize
-    const thumbX = x + thumbSize / 2 + normalizedValue * trackWidth - thumbSize / 2
-    const thumbY = y + (height - thumbSize) / 2
+    const trackStart = x + thumbRadius
+    const trackEnd = x + width - thumbRadius
+    const trackWidth = trackEnd - trackStart
+    const centerY = y + height / 2
+    
+    // Calculate thumb position based on value
+    const thumbCenterX = trackStart + normalizedValue * trackWidth
     
     // Draw track background
     this.renderer.drawLine({
-      startEnd: [x + thumbSize / 2, trackY + trackThickness / 2, 
-                x + width - thumbSize / 2, trackY + trackThickness / 2],
+      startEnd: [trackStart, centerY, trackEnd, centerY],
       thickness: trackThickness,
       color: trackColor
     })
@@ -333,25 +358,14 @@ export class UIKSlider {
     // Draw filled portion
     if (normalizedValue > 0) {
       this.renderer.drawLine({
-        startEnd: [x + thumbSize / 2, trackY + trackThickness / 2,
-                  thumbX + thumbSize / 2, trackY + trackThickness / 2],
+        startEnd: [trackStart, centerY, thumbCenterX, centerY],
         thickness: trackThickness,
         color: fillColor
       })
     }
     
-    // Draw thumb
-    this.renderer.drawCircle({
-      leftTopWidthHeight: [thumbX, thumbY, thumbSize, thumbSize],
-      circleColor: thumbColor
-    })
-    
-    // Draw thumb border
-    this.renderer.drawCircle({
-      leftTopWidthHeight: [thumbX - 1, thumbY - 1, thumbSize + 2, thumbSize + 2],
-      circleColor: style.thumbBorderColor!,
-      fillPercent: 0.1
-    })
+    // Draw perfect circular thumb
+    this.drawCircularThumb(thumbCenterX, centerY, thumbRadius, thumbColor, style.thumbBorderColor!)
     
     // Draw label and value
     if (this.config.font) {
@@ -379,25 +393,27 @@ export class UIKSlider {
   }
 
   /**
-   * Render vertical slider
+   * Render vertical slider with circular thumbs
    */
   private renderVerticalSlider(x: number, y: number, width: number, height: number,
                               normalizedValue: number, trackColor: Color, fillColor: Color,
                               thumbColor: Color, textColor: Color): void {
     const style = this.config.style!
     const trackThickness = style.trackThickness!
-    const thumbSize = style.thumbSize!
+    const thumbRadius = style.thumbSize! * 0.5
     
     // Calculate positions
-    const trackX = x + (width - trackThickness) / 2
-    const trackHeight = height - thumbSize
-    const thumbY = y + thumbSize / 2 + (1 - normalizedValue) * trackHeight - thumbSize / 2
-    const thumbX = x + (width - thumbSize) / 2
+    const trackStart = y + thumbRadius
+    const trackEnd = y + height - thumbRadius
+    const trackHeight = trackEnd - trackStart
+    const centerX = x + width / 2
+    
+    // Calculate thumb position based on value (inverted for vertical)
+    const thumbCenterY = trackEnd - normalizedValue * trackHeight // Inverted
     
     // Draw track background
     this.renderer.drawLine({
-      startEnd: [trackX + trackThickness / 2, y + thumbSize / 2,
-                trackX + trackThickness / 2, y + height - thumbSize / 2],
+      startEnd: [centerX, trackStart, centerX, trackEnd],
       thickness: trackThickness,
       color: trackColor
     })
@@ -405,25 +421,14 @@ export class UIKSlider {
     // Draw filled portion
     if (normalizedValue > 0) {
       this.renderer.drawLine({
-        startEnd: [trackX + trackThickness / 2, thumbY + thumbSize / 2,
-                  trackX + trackThickness / 2, y + height - thumbSize / 2],
+        startEnd: [centerX, thumbCenterY, centerX, trackEnd],
         thickness: trackThickness,
         color: fillColor
       })
     }
     
-    // Draw thumb
-    this.renderer.drawCircle({
-      leftTopWidthHeight: [thumbX, thumbY, thumbSize, thumbSize],
-      circleColor: thumbColor
-    })
-    
-    // Draw thumb border
-    this.renderer.drawCircle({
-      leftTopWidthHeight: [thumbX - 1, thumbY - 1, thumbSize + 2, thumbSize + 2],
-      circleColor: style.thumbBorderColor!,
-      fillPercent: 0.1
-    })
+    // Draw perfect circular thumb
+    this.drawCircularThumb(centerX, thumbCenterY, thumbRadius, thumbColor, style.thumbBorderColor!)
     
     // Draw label and value
     if (this.config.font) {

@@ -47,57 +47,57 @@ export class UIKRenderer {
     this.ellipticalFillShader = new UIKShader(gl, ellipseVert, ellipseFrag)
 
     // Create VAO for this specific WebGL context
-    const rectStrip = [
-      1, 1, 0, // Top-right
-      1, 0, 0, // Bottom-right
-      0, 1, 0, // Top-left
-      0, 0, 0  // Bottom-left
-    ]
-    const vao = gl.createVertexArray()!
-    const vbo = gl.createBuffer()!
+      const rectStrip = [
+        1, 1, 0, // Top-right
+        1, 0, 0, // Bottom-right
+        0, 1, 0, // Top-left
+        0, 0, 0  // Bottom-left
+      ]
+      const vao = gl.createVertexArray()!
+      const vbo = gl.createBuffer()!
 
-    gl.bindVertexArray(vao)
+      gl.bindVertexArray(vao)
 
-    // Setup position VBO
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(rectStrip), gl.STATIC_DRAW)
-    gl.enableVertexAttribArray(0)
-    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
+      // Setup position VBO
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(rectStrip), gl.STATIC_DRAW)
+      gl.enableVertexAttribArray(0)
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
 
-    gl.bindVertexArray(null)
-    const texCoordData = [
-      1.0,
-      1.0, // Top-right
-      1.0,
-      0.0, // Bottom-right
-      0.0,
-      1.0, // Top-left
-      0.0,
-      0.0 // Bottom-left
-    ]
+      gl.bindVertexArray(null)
+      const texCoordData = [
+        1.0,
+        1.0, // Top-right
+        1.0,
+        0.0, // Bottom-right
+        0.0,
+        1.0, // Top-left
+        0.0,
+        0.0 // Bottom-left
+      ]
 
-    const texCoordBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoordData), gl.STATIC_DRAW)
+      const texCoordBuffer = gl.createBuffer()
+      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoordData), gl.STATIC_DRAW)
 
-    // Assign a_texcoord (location = 1)
-    gl.enableVertexAttribArray(1)
-    gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0)
+      // Assign a_texcoord (location = 1)
+      gl.enableVertexAttribArray(1)
+      gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0)
 
-    gl.bindVertexArray(null) // Unbind VAO when done
-    
+      gl.bindVertexArray(null) // Unbind VAO when done
+      
     this.genericVAO = vao
 
     // Create triangle vertex buffer for this specific WebGL context
     this.triangleVertexBuffer = this.gl.createBuffer() as WebGLBuffer
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.triangleVertexBuffer)
 
-    // Allocate space for 3 vertices (triangle), each with 2 components (x, y)
-    const initialVertices = new Float32Array(6)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, initialVertices, this.gl.DYNAMIC_DRAW)
-    gl.bindVertexArray(null) // Unbind VAO when done
-    // Unbind the buffer to prevent accidental modification
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null)
+      // Allocate space for 3 vertices (triangle), each with 2 components (x, y)
+      const initialVertices = new Float32Array(6)
+      this.gl.bufferData(this.gl.ARRAY_BUFFER, initialVertices, this.gl.DYNAMIC_DRAW)
+      gl.bindVertexArray(null) // Unbind VAO when done
+      // Unbind the buffer to prevent accidental modification
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null)
   }
 
   /**

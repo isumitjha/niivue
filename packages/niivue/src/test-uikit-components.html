@@ -1386,7 +1386,10 @@
             medicalParams.brightness = value
             if (nv && nv.volumes.length > 0) {
                 // Apply brightness to medical image
-                nv.volumes[0].cal_min = value * 100
+                // FIXED: Invert the relationship so higher values = brighter image
+                // Higher slider value should result in lower cal_min (brighter)
+                // Map slider 0-1 to cal_min range 100-0 (inverted)
+                nv.volumes[0].cal_min = (1 - value) * 100
                 nv.updateGLVolume()
                 nv.drawScene()
             }
@@ -1394,14 +1397,18 @@
             // Update UI displays
             document.getElementById('brightness-value').textContent = `${Math.round(value * 100)}%`
             document.getElementById('info-brightness').textContent = `${Math.round(value * 100)}%`
-            log(`Brightness adjusted to ${Math.round(value * 100)}%`, 'event')
+            log(`Brightness adjusted to ${Math.round(value * 100)}% (cal_min: ${Math.round((1 - value) * 100)})`, 'event')
         }
 
         function updateContrast(value) {
             medicalParams.contrast = value
             if (nv && nv.volumes.length > 0) {
                 // Apply contrast to medical image
-                nv.volumes[0].cal_max = 100 + (value * 200)
+                // FIXED: Improve contrast mapping for better medical imaging
+                // Map slider 0-1 to a more appropriate contrast range
+                // Lower values = lower contrast (wider window), higher values = higher contrast (narrower window)
+                const baseMax = 100 + ((1 - value) * 200) // Inverted: lower slider = higher cal_max = lower contrast
+                nv.volumes[0].cal_max = baseMax
                 nv.updateGLVolume()
                 nv.drawScene()
             }
@@ -1409,7 +1416,7 @@
             // Update UI displays
             document.getElementById('contrast-value').textContent = `${Math.round(value * 100)}%`
             document.getElementById('info-contrast').textContent = `${Math.round(value * 100)}%`
-            log(`Contrast adjusted to ${Math.round(value * 100)}%`, 'event')
+            log(`Contrast adjusted to ${Math.round(value * 100)}% (cal_max: ${Math.round(100 + ((1 - value) * 200))})`, 'event')
         }
 
         function updateZoom(value) {
@@ -1759,8 +1766,9 @@
                 
                 // Reset volume properties
                 if (nv.volumes.length > 0) {
-                    nv.volumes[0].cal_min = initialParams.brightness * 100
-                    nv.volumes[0].cal_max = 100 + (initialParams.contrast * 200)
+                    // FIXED: Use corrected formulas to maintain same visual appearance
+                    nv.volumes[0].cal_min = (1 - initialParams.brightness) * 100  // Inverted for brightness
+                    nv.volumes[0].cal_max = 100 + ((1 - initialParams.contrast) * 200)  // Inverted for contrast
                     nv.volumes[0].opacity = initialParams.opacity
                     nv.volumes[0].colormap = initialParams.colormap
                 }
